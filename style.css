@@ -22,7 +22,6 @@ body {
     height: 100vh;
     overflow: hidden;
     background-color: #0f172a;
-    /* Fallback */
 }
 
 /* Map Container */
@@ -34,7 +33,6 @@ body {
     left: 0;
     z-index: 0;
     background: #242f3e;
-    /* Matches dark theme background */
 }
 
 /* Dark Mode Filter for OSM Tiles */
@@ -53,7 +51,6 @@ body {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    /* Let clicks pass through to map */
     z-index: 10;
     padding: 2rem;
     display: flex;
@@ -99,7 +96,6 @@ body {
     width: 8px;
     height: 8px;
     background-color: var(--warning);
-    /* Default starting state */
     border-radius: 50%;
     box-shadow: 0 0 8px var(--warning);
     transition: background-color 0.3s, box-shadow 0.3s;
@@ -129,18 +125,103 @@ body {
     box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
     border: 2px solid var(--border-glass);
     transform: scaleX(-1);
-    /* Mirror effect for user intuition */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .input_video {
     display: none;
-    /* We use the canvas for rendering */
 }
 
 .output_canvas {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+/* Camera Toggle Button inside container */
+.camera-toggle-btn {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 24px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-glass);
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 25;
+    pointer-events: auto;
+    transform: scaleX(-1);
+    transition: background 0.2s;
+}
+
+.camera-toggle-btn:hover {
+    background: var(--danger);
+}
+
+/* Floating Show Camera Button */
+.show-camera-btn {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 999px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    z-index: 30;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    pointer-events: auto;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.show-camera-btn.hidden {
+    display: none;
+}
+
+/* Floating Show Route Button */
+.show-route-btn {
+    position: absolute;
+    bottom: 4.5rem; /* Above camera button */
+    right: 1.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--success);
+    color: white;
+    border: none;
+    border-radius: 999px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+    z-index: 30;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    pointer-events: auto;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.show-route-btn:hover {
+    background: #16a34a; /* darker success */
+    transform: translateY(-2px);
+}
+
+.show-route-btn.hidden {
+    display: none;
+}
+
+.camera-container.minimized {
+    transform: scaleX(-1) scale(0);
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* Controls Guide */
@@ -168,94 +249,111 @@ body {
     transition: transform 0.2s;
 }
 
-.guide-item:hover {
-    transform: translateX(4px);
-    background: rgba(15, 23, 42, 0.8);
-}
-
 .guide-item .icon {
     font-size: 1.25rem;
 }
 
-/* Modal */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Responsividade Mobile */
+@media (max-width: 768px) {
+    .ui-overlay {
+        padding: 1rem;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .header h1 {
+        font-size: 1.1rem;
+        padding: 0.5rem 1rem;
+        width: 100%;
+        text-align: center;
+    }
+
+    .status-badge {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+        align-self: center;
+    }
+
+    .camera-container {
+        bottom: 1rem;
+        right: 1rem;
+        width: 160px;
+        height: 120px;
+        border-radius: 12px;
+    }
+
+    .controls-guide {
+        bottom: 1rem;
+        left: 1rem;
+        gap: 0.5rem;
+        max-width: 50%;
+    }
+
+    .guide-item {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.7rem;
+        gap: 0.4rem;
+    }
+
+    .guide-item .icon {
+        font-size: 0.9rem;
+    }
 }
 
-.modal {
-    background: #1e293b;
-    padding: 2rem;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 480px;
-    border: 1px solid var(--border-glass);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-    color: var(--text-main);
-    text-align: center;
+@media (max-width: 480px) {
+    .controls-guide {
+        bottom: 4rem;
+    }
+    
+    .camera-container {
+        width: 130px;
+        height: 97px;
+    }
+
+    .show-camera-btn {
+        bottom: 1rem;
+        right: 1rem;
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+    }
+
+    .show-route-btn {
+        bottom: 3.5rem;
+        right: 1rem;
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+    }
+
+    /* Hide default leaflet routing control on mobile */
+    .leaflet-routing-container:not(.show-in-modal) {
+        display: none !important;
+    }
+
+    /* Styles for routing control when inside modal */
+    .leaflet-routing-container.show-in-modal {
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        background: transparent !important;
+        color: var(--text-main) !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .leaflet-routing-container.show-in-modal .leaflet-routing-alt {
+        max-height: none !important;
+        background: transparent !important;
+        color: var(--text-main) !important;
+    }
 }
 
-.modal h2 {
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-}
-
-.modal p {
-    color: var(--text-muted);
-    margin-bottom: 1.5rem;
-    line-height: 1.5;
-}
-
-.modal input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    border: 1px solid var(--border-glass);
-    background: rgba(0, 0, 0, 0.2);
-    color: var(--text-main);
-    margin-bottom: 1rem;
-    font-size: 1rem;
-    outline: none;
-    transition: border-color 0.2s;
-}
-
-.modal input:focus {
-    border-color: var(--primary-color);
-}
-
-.modal button {
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 0.75rem 2rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    width: 100%;
-}
-
-.modal button:hover {
-    background: var(--primary-hover);
-}
-
-.modal .subtext {
-    font-size: 0.75rem;
-    margin-top: 1rem;
-    margin-bottom: 0;
-    opacity: 0.7;
-}
-
-.hidden {
-    display: none !important;
+@media (max-height: 500px) {
+    .controls-guide {
+        display: none;
+    }
 }

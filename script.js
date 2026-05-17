@@ -11,6 +11,9 @@ let isDragging = false;
 let lastHandPosition = { x: 0, y: 0 };
 let zoomLevel = 15;
 
+// Mobile Detection
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
 // Config 
 // Sensitivity adjusted for Leaflet pixels
 const PAN_SENSITIVITY = 3.0;
@@ -91,6 +94,50 @@ function initMap() {
     }
 
     startCamera();
+    setupMobileControls();
+}
+
+function setupMobileControls() {
+    const cameraContainer = document.getElementById('camera-container');
+    const cameraToggle = document.getElementById('camera-toggle');
+    const showCameraBtn = document.getElementById('show-camera-btn');
+    
+    // Route Modal elements
+    const showRouteBtn = document.getElementById('show-route-btn');
+    const routeModalOverlay = document.getElementById('route-modal-overlay');
+    const closeRouteBtn = document.getElementById('close-route-btn');
+
+    // Default states for mobile
+    if (isMobile) {
+        cameraContainer.classList.add('minimized');
+        showCameraBtn.classList.remove('hidden');
+    }
+
+    cameraToggle.addEventListener('click', () => {
+        cameraContainer.classList.add('minimized');
+        showCameraBtn.classList.remove('hidden');
+    });
+
+    showCameraBtn.addEventListener('click', () => {
+        cameraContainer.classList.remove('minimized');
+        showCameraBtn.classList.add('hidden');
+    });
+
+    showRouteBtn.addEventListener('click', () => {
+        routeModalOverlay.classList.remove('hidden');
+        
+        // Move routing container to modal if not already there
+        const routingElem = document.querySelector('.leaflet-routing-container');
+        const modalContainer = document.getElementById('route-info-container');
+        if (routingElem && modalContainer && !routingElem.classList.contains('show-in-modal')) {
+            modalContainer.appendChild(routingElem);
+            routingElem.classList.add('show-in-modal');
+        }
+    });
+
+    closeRouteBtn.addEventListener('click', () => {
+        routeModalOverlay.classList.add('hidden');
+    });
 }
 
 let routingControl = null;
@@ -136,6 +183,11 @@ function setupRouting(startLat, startLng) {
             const timeMin = Math.round(summary.totalTime / 60);
             const distKm = (summary.totalDistance / 1000).toFixed(1);
             locationStatus.innerText = `🚗 ${timeMin} min (${distKm} km)`;
+
+            if (isMobile) {
+                const showRouteBtn = document.getElementById('show-route-btn');
+                if (showRouteBtn) showRouteBtn.classList.remove('hidden');
+            }
         }).addTo(map);
     });
 }
@@ -192,7 +244,7 @@ const hands = new Hands({
 
 hands.setOptions({
     maxNumHands: 2, // Enable two hands for zoom
-    modelComplexity: 1,
+    modelComplexity: isMobile ? 0 : 1, // Fast for mobile, Accurate for desktop
     minDetectionConfidence: 0.5,
     minTrackingConfidence: 0.5
 });
